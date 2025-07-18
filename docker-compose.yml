@@ -1,0 +1,105 @@
+version: "3.9"
+
+services:
+  # ------------------- USER SERVERS -------------------
+  user-server-1:
+    image: ghcr.io/kharon-labs/user-server:v0.2.1
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/users
+      REDIS_URL: redis://redis:6379
+
+  user-server-2:
+    image: ghcr.io/kharon-labs/user-server:v0.2.1
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/users
+      REDIS_URL: redis://redis:6379
+
+  user-server-3:
+    image: ghcr.io/kharon-labs/user-server:v0.2.1
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/users
+      REDIS_URL: redis://redis:6379
+
+  user-api:
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - user-server-1
+      - user-server-2
+      - user-server-3
+    ports:
+      - "8001:80"
+    volumes:
+      - ./nginx/user-server.conf:/etc/nginx/nginx.conf:ro
+
+  # ------------------- PAYMENT SERVERS -------------------
+  payment-server-1:
+    image: ghcr.io/kharon-labs/payment-server:v0.3.4
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/payment
+      REDIS_URL: redis://redis:6379
+
+  payment-server-2:
+    image: ghcr.io/kharon-labs/payment-server:v0.3.4
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/payment
+      REDIS_URL: redis://redis:6379
+
+  payment-server-3:
+    image: ghcr.io/kharon-labs/payment-server:v0.3.4
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/payment
+      REDIS_URL: redis://redis:6379
+
+  payment-api:
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - payment-server-1
+      - payment-server-2
+      - payment-server-3
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/payment-server.conf:/etc/nginx/nginx.conf:ro
+
+  # ------------------- INDEXER -------------------
+  indexer:
+    image: ghcr.io/kharon-labs/kharon-indexer:v1.0.1
+    restart: always
+    environment:
+      USER_SERVER_URL: http://user-api
+      PAYMENT_SERVER_URL: http://payment-api
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/indexer
+
+  # ------------------- DATABASE -------------------
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+
+  # ------------------- REDIS -------------------
+  redis:
+    image: redis:7
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+volumes:
+  pg_data:
+  redis_data:

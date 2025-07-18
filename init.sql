@@ -1,0 +1,5 @@
+CREATE DATABASE users;
+
+CREATE DATABASE payment;
+
+CREATE DATABASE indexer;
