@@ -1,0 +1,6 @@
+/envs/*.env
+# /envs
+letsencrypt/
+pgbackrest
+backups
+certs

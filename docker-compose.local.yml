@@ -134,7 +134,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - 127.0.0.1:6379:6379
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -142,9 +142,9 @@ services:
       retries: 5
 # ------------------- FRONTEND -------------------
   frontend-1:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.1
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
     env_file:
-      - ./envs/frontend.env
+      - ./envs/frontend.local.env
     platform: linux/amd64
     restart: always
     depends_on:
@@ -152,9 +152,9 @@ services:
       - payment-api
 
   frontend-2:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.1
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
     env_file:
-      - ./envs/frontend.env
+      - ./envs/frontend.local.env
     platform: linux/amd64
     restart: always
     depends_on:
@@ -162,9 +162,9 @@ services:
       - payment-api
 
   frontend-3:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.1
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
     env_file:
-      - ./envs/frontend.env
+      - ./envs/frontend.local.env
     platform: linux/amd64
     restart: always
     depends_on:
@@ -179,54 +179,10 @@ services:
       - frontend-1
       - frontend-2
       - frontend-3
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`kharonpay.com`) && !Method(`POST`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-
-      - "traefik.http.middlewares.frontend-ratelimit-post.ratelimit.average=1"
-      - "traefik.http.middlewares.frontend-ratelimit-post.ratelimit.period=1m"
-      - "traefik.http.routers.frontend-post.rule=Host(`kharonpay.com`) && Method(`POST`)"
-      - "traefik.http.routers.frontend-post.middlewares=frontend-ratelimit-post"
-      - "traefik.http.routers.frontend-post.entrypoints=websecure"
-      - "traefik.http.routers.frontend-post.tls.certresolver=letsencrypt"
-
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
-      - "com.centurylinklabs.watchtower.enable=true"
-    expose:
-      - 80
+    ports:
+      - "3000:80"
     volumes:
       - ./nginx/frontend.conf:/etc/nginx/nginx.conf:ro
-
-
-# ------------------- REVERSE PROXY (TRAEFIK) -------------------
-  traefik:
-    image: traefik:v3.1
-    container_name: traefik
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    command:
-      - "--api.dashboard=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entryPoints.web.forwardedHeaders.insecure"
-      - "--entryPoints.websecure.forwardedHeaders.insecure"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=services@kharonpay.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
-
   # ------------------- LOGGING -------------------
   # user-logs:
   #   image: ghcr.io/kharon-labs/kharon-logger:v0.1.0
@@ -267,7 +223,6 @@ volumes:
   pg_backups:
   user_logs:
   payment_logs:
-  letsencrypt:
 
 
 
