@@ -1,0 +1,6 @@
+tls:
+  certificates:
+    - certFile: /certs/kharonpay.com.crt
+      keyFile: /certs/kharonpay.com.key
+    - certFile: /certs/db-panel-2025.kharonpay.com.crt
+      keyFile: /certs/db-panel-2025.kharonpay.com.key

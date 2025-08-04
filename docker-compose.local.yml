@@ -6,6 +6,9 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
     platform: linux/amd64
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -18,6 +21,9 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
     platform: linux/amd64
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -30,6 +36,9 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
     platform: linux/amd64
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -55,6 +64,9 @@ services:
   payment-server-1:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -65,7 +77,10 @@ services:
 
   payment-server-2:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
-    restart: always
+    restart: 
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -77,6 +92,9 @@ services:
   payment-server-3:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -113,6 +131,7 @@ services:
   # ------------------- DATABASE -------------------
   postgres:
     image: postgres:16
+    container_name: postgres
     restart: always
     env_file:
       - ./envs/database.env
@@ -120,12 +139,26 @@ services:
       - pg_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "kharon_admin"]
       interval: 30s
       timeout: 10s
       retries: 5
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./envs/database.env
+    ports:
+      - "127.0.0.1:5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
   # ------------------- REDIS -------------------
   redis:
@@ -142,7 +175,7 @@ services:
       retries: 5
 # ------------------- FRONTEND -------------------
   frontend-1:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
+    image: ghcr.io/kharon-labs/kharon-pay-ui:local
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
@@ -152,7 +185,7 @@ services:
       - payment-api
 
   frontend-2:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
+    image: ghcr.io/kharon-labs/kharon-pay-ui:local
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
@@ -162,7 +195,7 @@ services:
       - payment-api
 
   frontend-3:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.2
+    image: ghcr.io/kharon-labs/kharon-pay-ui:local
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
