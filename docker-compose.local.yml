@@ -77,7 +77,7 @@ services:
 
   payment-server-2:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
-    restart: 
+    restart: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,19 +146,19 @@ services:
       timeout: 10s
       retries: 5
   
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - ./envs/database.env
-    ports:
-      - "127.0.0.1:5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   restart: always
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   env_file:
+  #     - ./envs/database.env
+  #   ports:
+  #     - "127.0.0.1:5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
 
   # ------------------- REDIS -------------------
   redis:
