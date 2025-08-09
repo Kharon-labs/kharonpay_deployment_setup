@@ -3,7 +3,7 @@ version: "3.9"
 services:
   # ------------------- USER SERVERS -------------------
   user-server-1:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
     depends_on:
@@ -18,7 +18,7 @@ services:
       retries: 3
 
   user-server-2:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
     depends_on:
@@ -33,7 +33,7 @@ services:
       retries: 3
 
   user-server-3:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.5
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
     depends_on:
@@ -62,7 +62,7 @@ services:
 
   # ------------------- PAYMENT SERVERS -------------------
   payment-server-1:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: always
     depends_on:
       postgres:
@@ -76,7 +76,7 @@ services:
       retries: 3
 
   payment-server-2:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: 
     depends_on:
       postgres:
@@ -90,7 +90,7 @@ services:
       retries: 3
 
   payment-server-3:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.4
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: always
     depends_on:
       postgres:
@@ -229,26 +229,26 @@ services:
   #   volumes:
   #     - payment_logs:/var/log/kharon/payment
 # ------------------- BACKUP JOB -------------------
-  pg-backup:
-    image: postgres:16
-    depends_on:
-      - postgres
-    environment:
-      PGPASSWORD: postgres
-    volumes:
-      - ./backups:/backups
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        while true; do
-          echo "Starting backup at $(date)";
-          TIMESTAMP=$(date +%Y%m%d%H%M)
-          echo "Dumping to /backups/backup_${TIMESTAMP}.dump";
-          pg_dump -h postgres -U postgres -F c -f "/backups/backup_${TIMESTAMP}.dump" postgres;
-          echo "Done.";
-          sleep 30;
-        done
+  # pg-backup:
+  #   image: postgres:16
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     PGPASSWORD: postgres
+  #   volumes:
+  #     - ./backups:/backups
+  #   entrypoint: /bin/sh
+  #   command:
+  #     - -c
+  #     - |
+  #       while true; do
+  #         echo "Starting backup at $(date)";
+  #         TIMESTAMP=$(date +%Y%m%d%H%M)
+  #         echo "Dumping to /backups/backup_${TIMESTAMP}.dump";
+  #         pg_dump -h postgres -U postgres -F c -f "/backups/backup_${TIMESTAMP}.dump" postgres;
+  #         echo "Done.";
+  #         sleep 30;
+  #       done
 
 volumes:
   pg_data:
