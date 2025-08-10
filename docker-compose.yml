@@ -174,7 +174,7 @@ services:
       - payment-api
 
   frontend-2:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.6
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.
     env_file:
       - ./envs/frontend.env
     platform: linux/amd64

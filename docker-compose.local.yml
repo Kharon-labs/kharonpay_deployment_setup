@@ -6,11 +6,8 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/user_management.env
+      - ./envs/user_management_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/healthz"]
       interval: 30s
@@ -21,11 +18,8 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/user_management.env
+      - ./envs/user_management_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/healthz"]
       interval: 30s
@@ -36,11 +30,8 @@ services:
     image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
     platform: linux/amd64
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/user_management.env
+      - ./envs/user_management_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/healthz"]
       interval: 30s
@@ -64,11 +55,8 @@ services:
   payment-server-1:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/payment_server.env
+      - ./envs/payment_server_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s
@@ -78,11 +66,8 @@ services:
   payment-server-2:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/payment_server.env
+      - ./envs/payment_server_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s
@@ -92,11 +77,8 @@ services:
   payment-server-3:
     image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
-      - ./envs/payment_server.env
+      - ./envs/payment_server_local.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s
@@ -129,22 +111,22 @@ services:
       retries: 3
 
   # ------------------- DATABASE -------------------
-  postgres:
-    image: postgres:16
-    container_name: postgres
-    restart: always
-    env_file:
-      - ./envs/database.env
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "127.0.0.1:5432:5432"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "kharon_admin"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  # postgres:
+  #   image: postgres:16
+  #   container_name: postgres
+  #   restart: always
+  #   env_file:
+  #     - ./envs/database.env
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+  #     - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  #   ports:
+  #     - "127.0.0.1:5432:5432"
+  #   healthcheck:
+  #     test: ["CMD", "pg_isready", "-U", "kharon_admin"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
   
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -175,7 +157,7 @@ services:
       retries: 5
 # ------------------- FRONTEND -------------------
   frontend-1:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:local
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.7
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
@@ -185,7 +167,7 @@ services:
       - payment-api
 
   frontend-2:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:local
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.7
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
@@ -195,7 +177,7 @@ services:
       - payment-api
 
   frontend-3:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:local
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.7
     env_file:
       - ./envs/frontend.local.env
     platform: linux/amd64
