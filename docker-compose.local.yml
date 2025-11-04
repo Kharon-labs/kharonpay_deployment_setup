@@ -53,7 +53,7 @@ services:
 
   # ------------------- PAYMENT SERVERS -------------------
   payment-server-1:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.8
     restart: always
     env_file:
       - ./envs/payment_server_local.env
@@ -64,7 +64,7 @@ services:
       retries: 3
 
   payment-server-2:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.8
     restart: always
     env_file:
       - ./envs/payment_server_local.env
@@ -75,7 +75,7 @@ services:
       retries: 3
 
   payment-server-3:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.8
     restart: always
     env_file:
       - ./envs/payment_server_local.env

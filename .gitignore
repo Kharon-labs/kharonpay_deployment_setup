@@ -4,5 +4,6 @@ letsencrypt/
 pgbackrest
 backups
 certs
-
+.rsyncignore
+./.rsyncignore
 

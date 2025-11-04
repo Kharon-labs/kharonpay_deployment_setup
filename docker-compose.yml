@@ -3,9 +3,11 @@ version: "3.9"
 services:
   # ------------------- USER SERVERS -------------------
   user-server-1:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.9
     platform: linux/amd64
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -15,9 +17,11 @@ services:
       retries: 3
 
   user-server-2:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.9
     platform: linux/amd64
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -27,9 +31,11 @@ services:
       retries: 3
 
   user-server-3:
-    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.8
+    image: ghcr.io/kharon-labs/kharon-user-management-test:v0.0.9
     platform: linux/amd64
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/user_management.env
     healthcheck:
@@ -53,8 +59,10 @@ services:
 
   # ------------------- PAYMENT SERVERS -------------------
   payment-server-1:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.15
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -64,8 +72,10 @@ services:
       retries: 3
 
   payment-server-2:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.15
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -75,8 +85,10 @@ services:
       retries: 3
 
   payment-server-3:
-    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.7
+    image: ghcr.io/kharon-labs/kharon-payment-server-test:v0.0.15
     restart: always
+    depends_on:
+      - postgres
     env_file:
       - ./envs/payment_server.env
     healthcheck:
@@ -99,7 +111,7 @@ services:
 
   # ------------------- INDEXER -------------------
   indexer:
-    image: ghcr.io/kharon-labs/kharon-indexer:v0.1.1
+    image: ghcr.io/kharon-labs/kharon-indexer:v0.2.3
     platform: linux/amd64
     restart: unless-stopped
     env_file:
@@ -123,7 +135,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "kharon_admin"]
+      test: ["CMD", "pg_isready", "-U", "kharon_db"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -164,7 +176,7 @@ services:
       retries: 5
 # ------------------- FRONTEND -------------------
   frontend-1:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.6
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.8
     env_file:
       - ./envs/frontend.env
     platform: linux/amd64
@@ -174,7 +186,7 @@ services:
       - payment-api
 
   frontend-2:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.8
     env_file:
       - ./envs/frontend.env
     platform: linux/amd64
@@ -184,7 +196,7 @@ services:
       - payment-api
 
   frontend-3:
-    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.6
+    image: ghcr.io/kharon-labs/kharon-pay-ui:v0.0.8
     env_file:
       - ./envs/frontend.env
     platform: linux/amd64
@@ -206,12 +218,12 @@ services:
       # http with redirection
       - traefik.http.middlewares.redirect-middleware.redirectscheme.scheme=https
       - traefik.http.routers.web-router.entrypoints=web
-      - traefik.http.routers.web-router.rule=Host(`kharonpay.com`)
+      - traefik.http.routers.web-router.rule=Host(`app.kharonpay.com`)
       - traefik.http.routers.web-router.middlewares=redirect-middleware
       # https
       - traefik.http.routers.websecure-router.entrypoints=websecure
       - traefik.http.routers.websecure-router.tls=true
-      - traefik.http.routers.websecure-router.rule=Host(`kharonpay.com`)
+      - traefik.http.routers.websecure-router.rule=Host(`app.kharonpay.com`)
 
       # - "traefik.http.routers.frontend.rule=Host(`kharonpay.com`) && !Method(`POST`)"
       # - "traefik.http.routers.frontend.entrypoints=websecure"
@@ -230,6 +242,59 @@ services:
       - 80
     volumes:
       - ./nginx/frontend.conf:/etc/nginx/nginx.conf:ro
+
+
+# ------------------- LANDINGPAGE -------------------
+  landing-1:
+    image: ghcr.io/kharon-labs/kharon-pay-landing:v0.0.2
+    env_file:
+      - ./envs/frontend.env
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - frontend-api
+
+  landing-2:
+    image: ghcr.io/kharon-labs/kharon-pay-landing:v0.0.2
+    env_file:
+      - ./envs/frontend.env
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - frontend-api
+
+  landing-3:
+    image: ghcr.io/kharon-labs/kharon-pay-landing:v0.0.2
+    env_file:
+      - ./envs/frontend.env
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - frontend-api
+
+  landing-api:
+    image: nginx:latest
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - landing-1
+      - landing-2
+      - landing-3
+    labels:
+      - "traefik.enable=true"
+      # http with redirection
+      - traefik.http.middlewares.redirect-middleware.redirectscheme.scheme=https
+      - traefik.http.routers.landing-api.entrypoints=web
+      - traefik.http.routers.landing-api.rule=Host(`kharonpay.com`)
+      - traefik.http.routers.landing-api.middlewares=redirect-middleware
+      # https
+      - traefik.http.routers.landing-api.entrypoints=websecure
+      - traefik.http.routers.landing-api.tls=true
+      - traefik.http.routers.landing-api.rule=Host(`kharonpay.com`)
+    expose:
+      - 80
+    volumes:
+      - ./nginx/landing.conf:/etc/nginx/nginx.conf:ro
 
 
 # ------------------- REVERSE PROXY (TRAEFIK) -------------------
